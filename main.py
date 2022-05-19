@@ -10,6 +10,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from collections import Counter
 from math import sqrt
+from sklearn.metrics import roc_curve,auc
+import matplotlib.pyplot as plt
+
+
 
 # defining data processing function
 def preprocess_string(text):
@@ -107,12 +111,36 @@ if __name__ == '__main__':
     # k-value that returns the highest accuracy
     k = 13
 
-    # instantiate a KNN model 
+    # instantiate a KNN model
     clf = K_Nearest_Neighbors(k_val=k)
-    print("------------------Training In Progress------------------------")
-    print("Training Examples: ", X_train.shape)
     clf.fit(X_train, y_train)
-    print('------------------------Training Finished!')
 
     predictions = clf.predict(X_test)
+
     print("KNN classification accuracy:", calc_accuracy(y_test, predictions))
+
+    fprs, tprs, thresholds = roc_curve(y_test, predictions)
+
+    # compute the AUC for KNN
+    print('AUC for KNN:', auc(fprs, tprs))
+
+    plt.plot(fprs, tprs, marker='.', label='ROC curve (area = %0.3f)' % round(auc(fprs, tprs), 3))
+
+    plt.plot([0, 1], [0, 1], linestyle='--', color='grey', label='Random')
+
+    start, end = plt.xlim()
+
+    plt.xticks(np.round(np.arange(start, end, 0.1), 2))
+
+    plt.xlim(0, 1)
+    plt.ylim(0, 1)
+
+    plt.title('Figure1. ROC curve for K-Nearest Neighbors', size=10)
+
+    plt.xlabel('False Positive Rate', size=10)
+
+    plt.ylabel('True Positive Rate', size=10)
+
+    plt.legend()
+
+    plt.show()
